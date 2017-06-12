@@ -9,7 +9,7 @@ namespace cs_matrix
     /// Singular Value Decomposition
     /// </summary>
     /// <typeparam name="Val"></typeparam>
-    public class SVD<Val>
+    public class SVD
     {
         /// <summary>
         /// Factorize A = U * Sigma * V.transpose
@@ -29,33 +29,33 @@ namespace cs_matrix
         /// <param name="U"></param>
         /// <param name="Sigma"></param>
         /// <param name="V"></param>
-        public static void Factorize(IMatrix<int, Val> A, out IMatrix<int, Val> U, out IMatrix<int, Val> Sigma, out IMatrix<int, Val> Vstar)
+        public static void Factorize(IMatrix A, out IMatrix U, out IMatrix Sigma, out IMatrix Vstar)
         {
             int m = A.RowCount;
             int n = A.ColCount;
 
-            IMatrix<int, Val> At = A.Transpose();
-            IMatrix<int, Val> C = At.Multiply(A); // C is a n x n symmetric matrix now
+            IMatrix At = A.Transpose();
+            IMatrix C = At.Multiply(A); // C is a n x n symmetric matrix now
 
-            IMatrix<int, Val> T, V;
-            QRAlgorithm<Val>.Factorize(C, out T, out V);
+            IMatrix T, V;
+            QRAlgorithm.Factorize(C, out T, out V);
 
             Vstar = V.Transpose();
 
-            Sigma = new SparseMatrix<int, Val>(m, n, A.DefaultValue);
+            Sigma = new SparseMatrix(m, n, A.DefaultValue);
             int D = System.Math.Min(m, n);
             for (int i = 0; i < D; ++i)
             {
-                Sigma[i, i] = (dynamic)System.Math.Sqrt((dynamic)T[i, i]);
+                Sigma[i, i] = System.Math.Sqrt(T[i, i]);
             }
 
-            IMatrix<int, Val> SigmaInv = new SparseMatrix<int, Val>(m, n, A.DefaultValue);
+            IMatrix SigmaInv = new SparseMatrix(m, n, A.DefaultValue);
             for (int i = 0; i < D; ++i)
             {
-                double entry = (dynamic)Sigma[i, i];
+                double entry = Sigma[i, i];
                 if (entry != 0)
                 {
-                    SigmaInv[i, i] = (dynamic)(1.0 / entry);
+                    SigmaInv[i, i] = (1.0 / entry);
                 }
             }
             SigmaInv = SigmaInv.Transpose();

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace cs_matrix
 {
-    public class ForwardSubstitution<Val>
+    public class ForwardSubstitution
     {
         /// <summary>
         /// Solve x such that R * x = c
@@ -13,15 +13,15 @@ namespace cs_matrix
         /// <param name="R">a lower triangular matrix</param>
         /// <param name="c"></param>
         /// <returns></returns>
-        public static IVector<int, Val> Solve(IMatrix<int, Val> R, IVector<int, Val> c)
+        public static IVector Solve(IMatrix R, IVector c)
         {
             int n = R.RowCount;
-            IVector<int, Val> x = c.Zero(n, c.DefaultValue);
+            IVector x = c.Zero(n, c.DefaultValue);
             for (int r = 0; r < n; ++r)
             {
-                if ((dynamic)R[r][r] != 0)
+                if (R[r][r] != 0)
                 {
-                    x[r] = (c[r] - (dynamic)R[r].Multiply(x)) / R[r][r];
+                    x[r] = (c[r] - R[r].Multiply(x)) / R[r][r];
                 }
             }
             return x;

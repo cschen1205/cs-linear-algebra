@@ -14,57 +14,57 @@ namespace cs_matrix
         /// <param name="A">The original matrix</param>
         /// <param name="numRowExOperations">The number of elementary row exchange operations during the Gaussian elimination</param>
         /// <returns>The echelon form of the original matrix</returns>
-        public static IMatrix<Key, Val> GetEchelonForm<Key, Val>(IMatrix<Key, Val> A, out int numRowExOperations)
+        public static IMatrix GetEchelonForm(IMatrix A, out int numRowExOperations)
         {
-            IMatrix<Key, Val> B = A.Clone();
+            IMatrix B = A.Clone();
             int rowCount = B.RowCount;
             int colCount = B.ColCount;
 
             numRowExOperations = 0;
 
-            List<Key> newRows = new List<Key>();
-            HashSet<Key> remainingRows = new HashSet<Key>();
+            List<int> newRows = new List<int>();
+            HashSet<int> remainingRows = new HashSet<int>();
 
-            List<Key> oldRows = B.RowKeys.ToList();
+            List<int> oldRows = B.RowKeys.ToList();
 
-            foreach(Key k in oldRows)
+            foreach(int k in oldRows)
             {
                 remainingRows.Add(k);
             }
 
 
-            foreach(Key c in B.ColKeys)
+            foreach(int c in B.ColKeys)
             {
-                List<Key> nonZeroRows = GetRowsWithNonZeroColumnEntry(B, remainingRows, c);
+                List<int> nonZeroRows = GetRowsWithNonZeroColumnEntry(B, remainingRows, c);
                 if (nonZeroRows.Count > 0)
                 {
-                    Key pivot = GetPivot(B, nonZeroRows, c);
+                    int pivot = GetPivot(B, nonZeroRows, c);
 
                     newRows.Add(pivot);
                     remainingRows.Remove(pivot);
 
-                    foreach (Key r in nonZeroRows)
+                    foreach (int r in nonZeroRows)
                     {
-                        double multiplier = (dynamic)B[r][c] / (dynamic)B[pivot][c];
+                        double multiplier = B[r][c] / B[pivot][c];
 
                         B[r] = B[r].Minus(B[pivot].Multiply(multiplier));
                     }
                 }
             }
 
-            foreach (Key r in remainingRows)
+            foreach (int r in remainingRows)
             {
                 newRows.Add(r);
             }
 
             for (int i = 0; i < newRows.Count; ++i)
             {
-                Key newRow = newRows[i];
-                Key oldRow = oldRows[i];
+                int newRow = newRows[i];
+                int oldRow = oldRows[i];
 
                 if(!newRow.Equals(oldRow))
                 {
-                    IVector<Key, Val> temp = B[newRow];
+                    IVector temp = B[newRow];
                     B[newRow] = B[oldRow];
                     B[oldRow] = temp;
 
@@ -87,9 +87,9 @@ namespace cs_matrix
         /// <param name="M">An invertiable matrix, which originally starts as an identity matrix and arrived by undergoing the same elementary operations as A</param>
         /// <param name="numRowExOperations">The number of elementary row exchange operations during the Gaussian elimination</param>
         /// <returns>The echelon form of the original matrix, which is M*A</returns>
-        public static IMatrix<Key, Val> GetEchelonForm<Key, Val>(IMatrix<Key, Val> A, out IMatrix<Key, Val> M, out int numRowExOperations)
+        public static IMatrix GetEchelonForm(IMatrix A, out IMatrix M, out int numRowExOperations)
         {
-            IMatrix<Key, Val> B = A.Clone();
+            IMatrix B = A.Clone();
             int rowCount = B.RowCount;
             int colCount = B.ColCount;
 
@@ -97,30 +97,30 @@ namespace cs_matrix
             
             numRowExOperations = 0;
 
-            List<Key> newRows = new List<Key>();
-            HashSet<Key> remainingRows = new HashSet<Key>();
+            List<int> newRows = new List<int>();
+            HashSet<int> remainingRows = new HashSet<int>();
 
-            List<Key> oldRows = B.RowKeys.ToList();
+            List<int> oldRows = B.RowKeys.ToList();
 
-            foreach (Key k in oldRows)
+            foreach (int k in oldRows)
             {
                 remainingRows.Add(k);
             }
 
 
-            foreach (Key c in B.ColKeys)
+            foreach (int c in B.ColKeys)
             {
-                List<Key> nonZeroRows = GetRowsWithNonZeroColumnEntry(B, remainingRows, c);
+                List<int> nonZeroRows = GetRowsWithNonZeroColumnEntry(B, remainingRows, c);
                 if (nonZeroRows.Count > 0)
                 {
-                    Key pivot = GetPivot(B, nonZeroRows, c);
+                    int pivot = GetPivot(B, nonZeroRows, c);
 
                     newRows.Add(pivot);
                     remainingRows.Remove(pivot);
 
-                    foreach (Key r in nonZeroRows)
+                    foreach (int r in nonZeroRows)
                     {
-                        double multiplier = (dynamic)B[r][c] / (dynamic)B[pivot][c];
+                        double multiplier = B[r][c] / B[pivot][c];
 
                         B[r] = B[r].Minus(B[pivot].Multiply(multiplier));
                         M[r] = M[r].Minus(M[pivot].Multiply(multiplier));
@@ -128,19 +128,19 @@ namespace cs_matrix
                 }
             }
 
-            foreach (Key r in remainingRows)
+            foreach (int r in remainingRows)
             {
                 newRows.Add(r);
             }
 
             for (int i = 0; i < newRows.Count; ++i)
             {
-                Key newRow = newRows[i];
-                Key oldRow = oldRows[i];
+                int newRow = newRows[i];
+                int oldRow = oldRows[i];
 
                 if (!newRow.Equals(oldRow))
                 {
-                    IVector<Key, Val> temp = B[newRow];
+                    IVector temp = B[newRow];
                     B[newRow] = B[oldRow];
                     B[oldRow] = temp;
 
@@ -160,17 +160,17 @@ namespace cs_matrix
             return B;
         }
 
-        private static void Swap<Key>(List<Key> v, int i, int j)
+        private static void Swap(List<int> v, int i, int j)
         {
-            Key temp = v[i];
+            int temp = v[i];
             v[i] = v[j];
             v[j] = temp;
         }
 
-        private static List<Key> GetRowsWithNonZeroColumnEntry<Key, Val>(IMatrix<Key, Val> B, HashSet<Key> remainingRows, Key c)
+        private static List<int> GetRowsWithNonZeroColumnEntry(IMatrix B, HashSet<int> remainingRows, int c)
         {
-            List<Key> result = new List<Key>();
-            foreach (Key r in remainingRows)
+            List<int> result = new List<int>();
+            foreach (int r in remainingRows)
             {
                 if (B.HasValue(r, c))
                 {
@@ -190,13 +190,13 @@ namespace cs_matrix
         /// <param name="nonZeroRows"></param>
         /// <param name="c"></param>
         /// <returns></returns>
-        private static Key GetPivot<Key, Val>(IMatrix<Key, Val> B, List<Key> nonZeroRows, Key c)
+        private static int GetPivot(IMatrix B, List<int> nonZeroRows, int c)
         {
             double maxVal = double.MinValue;
-            Key pivot = default(Key);
-            foreach (Key r in nonZeroRows)
+            int pivot = 0;
+            foreach (int r in nonZeroRows)
             {
-                double val = (dynamic)B[r, c];
+                double val = B[r, c];
                 if (val > maxVal)
                 {
                     maxVal = val;

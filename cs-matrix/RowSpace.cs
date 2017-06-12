@@ -12,23 +12,23 @@ namespace cs_matrix
     /// </summary>
     /// <typeparam name="Key"></typeparam>
     /// <typeparam name="Val"></typeparam>
-    public class RowSpace<Key,Val> 
+    public class RowSpace
     {
-        private IMatrix<Key, Val> mEchelonA;
-        private IMatrix<Key, Val> mM; 
+        private IMatrix mEchelonA;
+        private IMatrix mM; 
 
-        public RowSpace(IMatrix<Key, Val> A)
+        public RowSpace(IMatrix A)
         {
             int numRowExOperations = 0;
             mEchelonA = GaussianElimination.GetEchelonForm(A, out mM, out numRowExOperations);
         }
 
-        public IMatrix<Key, Val> Echelon
+        public IMatrix Echelon
         {
             get { return mEchelonA; }
         }
 
-        public IMatrix<Key, Val> M
+        public IMatrix M
         {
             get { return mM; }
         }
@@ -36,14 +36,14 @@ namespace cs_matrix
         /// <summary>
         /// The basis, which is the set of independent vectors that span the row space of A
         /// </summary>
-        public List<IVector<Key, Val>> Basis
+        public List<IVector> Basis
         {
             get
             {
-                List<IVector<Key, Val>> basis = new List<IVector<Key, Val>>();
-                foreach (Key row in mEchelonA.RowKeys)
+                List<IVector> basis = new List<IVector>();
+                foreach (int row in mEchelonA.RowKeys)
                 {
-                    IVector<Key, Val> v = mEchelonA[row];
+                    IVector v = mEchelonA[row];
                     if (v.IsEmpty)
                     {
                         break;
@@ -58,14 +58,14 @@ namespace cs_matrix
         /// The basis for the null space of A
         /// The null space of matrix A is { v | A*v = 0 }
         /// </summary>
-        public List<IVector<Key, Val>> NullBasis
+        public List<IVector> NullBasis
         {
             get
             {
-                List<IVector<Key, Val>> result = new List<IVector<Key,Val>>();
-                foreach (Key row in mEchelonA.RowKeys)
+                List<IVector> result = new List<IVector>();
+                foreach (int row in mEchelonA.RowKeys)
                 {
-                    IVector<Key, Val> v = mEchelonA[row];
+                    IVector v = mEchelonA[row];
                     if (v.IsEmpty)
                     {
                         result.Add(mM[row]);
@@ -85,9 +85,9 @@ namespace cs_matrix
             {
                 int rank = 0;
 
-                foreach (Key row in mEchelonA.RowKeys)
+                foreach (int row in mEchelonA.RowKeys)
                 {
-                    IVector<Key, Val> v = mEchelonA[row];
+                    IVector v = mEchelonA[row];
                     if (v.IsEmpty)
                     {
                         break;

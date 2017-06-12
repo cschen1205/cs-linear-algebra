@@ -5,42 +5,42 @@ using System.Text;
 
 namespace cs_matrix
 {
-    public interface IVector<Key, Val>
+    public interface IVector
     {
-        Val this[Key index]
+        double this[int index]
         {
             get;
             set;
         }
 
-        bool HasValue(Key k);
+        bool HasValue(int k);
 
         int Dimension
         {
             get;
         }
 
-        IVector<Key, Val> Clone();
-        void Copy(IVector<Key, Val> rhs);
+        IVector Clone();
+        void Copy(IVector rhs);
 
-        IVector<Key, Val> Zero(int length, Val default_value);
-        IVector<Key, Val> Zero(Key[] keys, Val default_value);
+        IVector Zero(int length, double default_value);
+        IVector Zero(int[] keys, double default_value);
         
-        double Multiply(IVector<Key, Val> rhs);
-        IVector<Key, Val> Multiply(IMatrix<Key, Val> rhs);
-        IVector<Key, Val> Multiply(double scalar);
+        double Multiply(IVector rhs);
+        IVector Multiply(IMatrix rhs);
+        IVector Multiply(double scalar);
         
 
-        IVector<Key, Val> ProjectAlong(IVector<Key, Val> rhs);
-        IVector<Key, Val> ProjectAlong(IVector<Key, Val> rhs, out double sigma);
-        IVector<Key, Val> ProjectOrthogonal(IVector<Key, Val> rhs);
+        IVector ProjectAlong(IVector rhs);
+        IVector ProjectAlong(IVector rhs, out double sigma);
+        IVector ProjectOrthogonal(IVector rhs);
 
         /// <summary>
         /// Return the component of the vector perpendicular to all the vectors in the vector space spanned by vlist
         /// </summary>
         /// <param name="vlist">a set of mutually orthogonal vectors (i.e., perpendicular to each other)</param>
         /// <returns>the vector perpendicular to all the vectors in the vector space spanned by vlist</returns>
-        IVector<Key, Val> ProjectOrthogonal(IEnumerable<IVector<Key, Val>> vlist);
+        IVector ProjectOrthogonal(IEnumerable<IVector> vlist);
 
         /// <summary>
         /// Return the component of the vector perpendicular to all the vectors in the vector space spanned by vlist
@@ -48,24 +48,24 @@ namespace cs_matrix
         /// <param name="vlist">a set of mutually orthogonal vectors (i.e., perpendicular to each other)</param>
         /// <param name="alpha">a dictionary storing the project length along the calculation</param>
         /// <returns>the vector perpendicular to all the vectors in the vector space spanned by vlist</returns>
-        IVector<Key, Val> ProjectOrthogonal(List<IVector<Key, Val>> vlist, out Dictionary<int, double> alpha);
+        IVector ProjectOrthogonal(List<IVector> vlist, out Dictionary<int, double> alpha);
 
-        IVector<Key, Val> Add(IVector<Key, Val> rhs);
-        IVector<Key, Val> Minus(IVector<Key, Val> rhs);
-        IVector<Key, Val> Divide(IVector<Key, Val> rhs);
-        IVector<Key, Val> Pow(double scalar);
-        IVector<Key, Val> Sqrt();
-        IVector<Key, Val> Log();
+        IVector Add(IVector rhs);
+        IVector Minus(IVector rhs);
+        IVector Divide(IVector rhs);
+        IVector Pow(double scalar);
+        IVector Sqrt();
+        IVector Log();
         double Sum();
 
-        Key[] Keys { get; }
-        IEnumerable<Key> NonEmptyKeys { get; }
-        Key ID { get; set; }
+        int[] Keys { get; }
+        IEnumerable<int> NonEmptyKeys { get; }
+        int ID { get; set; }
 
         bool IsEmpty { get; }
-        Val DefaultValue { get; }
+        double DefaultValue { get; }
 
-        IVector<Key, Val> Normalize();
+        IVector Normalize();
 
         /// <summary>
         /// L1 : sum of absoluate values of each dimension

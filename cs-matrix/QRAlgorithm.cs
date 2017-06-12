@@ -11,7 +11,7 @@ namespace cs_matrix
     /// Currently only the basic QR algorithm is implemented, Hessenberg reduction will be introduced in the future
     /// </summary>
     /// <typeparam name="Val"></typeparam>
-    public class QRAlgorithm<Val>
+    public class QRAlgorithm
     {
         /// <summary>
         /// Given A which is a n x n symmetric matrix, we want to find U and T
@@ -35,23 +35,23 @@ namespace cs_matrix
         /// <param name="K">maximum number of iterations</param>
         /// <param name="T">T is a diagonal matrix whose diagonal entries are the eigen values</param>
         /// <param name="U">U is a n x n matrix whose columns are eigen vectors of A</param>
-        public static void Factorize(IMatrix<int, Val> A, out IMatrix<int, Val> T, out IMatrix<int, Val> U, int K = 100, double epsilon = 1e-10)
+        public static void Factorize(IMatrix A, out IMatrix T, out IMatrix U, int K = 100, double epsilon = 1e-10)
         {
             Debug.Assert(A.RowCount == A.ColCount);
 
             int n = A.RowCount;
-            IMatrix<int, Val> A_k = A.Clone();
-            IMatrix<int, Val> U_k = A.Identity(n);
+            IMatrix A_k = A.Clone();
+            IMatrix U_k = A.Identity(n);
 
-            IMatrix<int, Val> Q_k, R_k;
+            IMatrix Q_k, R_k;
             for (int k = 1; k <= K; ++k)
             {
-                QR<Val>.Factorize(A_k, out Q_k, out R_k);
+                QR.Factorize(A_k, out Q_k, out R_k);
                 A_k = R_k.Multiply(Q_k);
                 U_k = U_k.Multiply(Q_k);
 
                 double sum = 0;
-                foreach (IVector<int, Val> rowVec in A_k.NonEmptyRows)
+                foreach (IVector rowVec in A_k.NonEmptyRows)
                 {
                     int rowId = rowVec.ID;
                     foreach(int key in rowVec.NonEmptyKeys)
@@ -60,7 +60,7 @@ namespace cs_matrix
                         {
                             continue;
                         }
-                        sum += System.Math.Abs((dynamic)rowVec[key]);
+                        sum += System.Math.Abs(rowVec[key]);
                     }
                 }
                 if (sum <= epsilon)
@@ -69,7 +69,7 @@ namespace cs_matrix
                 }
             }
 
-            T = new SparseMatrix<int, Val>(n,n, A.DefaultValue);
+            T = new SparseMatrix(n,n, A.DefaultValue);
 
             for (int i = 0; i < n; ++i)
             {
@@ -85,11 +85,11 @@ namespace cs_matrix
         /// <param name="A"></param>
         /// <param name="eigenValues"></param>
         /// <param name="eigenVectors"></param>
-        public static List<IVector<int, Val>>  FindEigenVectors(IMatrix<int, Val> A, out List<double> eigenValues, int K=100, double epsilon = 1e-10)
+        public static List<IVector>  FindEigenVectors(IMatrix A, out List<double> eigenValues, int K=100, double epsilon = 1e-10)
         {
             Debug.Assert(A.RowCount == A.ColCount);
 
-            IMatrix<int, Val> T, U;
+            IMatrix T, U;
             Factorize(A, out T, out U, K, epsilon);
 
             int n = A.RowCount;
@@ -98,10 +98,10 @@ namespace cs_matrix
 
             for(int i=0; i < n; ++i)
             {
-                eigenValues.Add((dynamic)T[i, i]);
+                eigenValues.Add(T[i, i]);
             }
 
-            List<IVector<int, Val>> eigenVectors = MatrixUtils<int, Val>.GetColumnVectors(U);
+            List<IVector> eigenVectors = MatrixUtils.GetColumnVectors(U);
 
             return eigenVectors;
         }
@@ -119,27 +119,27 @@ namespace cs_matrix
         /// A.inverse = U * T.inverse * U.transpose, since U.transpose = U.inverse
         /// </summary>
         /// <param name="A">a n x n square matrix</param>
-        public static IMatrix<int, Val> InvertSymmetricMatrix(IMatrix<int, Val> A, int K = 100, double epsilon = 1e-10)
+        public static IMatrix InvertSymmetricMatrix(IMatrix A, int K = 100, double epsilon = 1e-10)
         {
             Debug.Assert(A.IsSymmetric);
 
             int n = A.RowCount;
 
-            IMatrix<int, Val> T, U;
+            IMatrix T, U;
             Factorize(A, out T, out U, K, epsilon);
             
-            IMatrix<int, Val> Tinv = new SparseMatrix<int, Val>(n, n, A.DefaultValue);
+            IMatrix Tinv = new SparseMatrix(n, n, A.DefaultValue);
             for (int i = 0; i < n; ++i)
             {
-                double lambda_ii = (dynamic)T[i, i];
+                double lambda_ii = T[i, i];
                 if (System.Math.Abs(lambda_ii) < epsilon)
                 {
                     throw new Exception("The matrix is not invertiable");
                 }
-                Tinv[i, i] = (dynamic)(1 / lambda_ii);
+                Tinv[i, i] = (1 / lambda_ii);
             }
 
-            IMatrix<int, Val> Uinv = U.Transpose();
+            IMatrix Uinv = U.Transpose();
             return U.Multiply(Tinv).Multiply(Uinv);
         }
 
@@ -151,16 +151,16 @@ namespace cs_matrix
         /// <param name="K"></param>
         /// <param name="epsilon"></param>
         /// <returns></returns>
-        public static IMatrix<int, Val> Power(IMatrix<int, Val> A, int p, int K = 100, double epsilon = 1e-10)
+        public static IMatrix Power(IMatrix A, int p, int K = 100, double epsilon = 1e-10)
         {
             int n = A.RowCount;
 
-            IMatrix<int, Val> T, U;
+            IMatrix T, U;
             Factorize(A, out T, out U, K, epsilon);
 
             for (int i = 0; i < n; ++i)
             {
-                T[i, i] = (dynamic)System.Math.Pow((dynamic)T[i, i], p);
+                T[i, i] = System.Math.Pow(T[i, i], p);
             }
 
             return U.Multiply(T).Multiply(U.Transpose());

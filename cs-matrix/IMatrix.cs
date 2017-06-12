@@ -5,7 +5,7 @@ using System.Text;
 
 namespace cs_matrix
 {
-    public interface IMatrix<Key, Val>
+    public interface IMatrix
     {
         int RowCount
         {
@@ -17,48 +17,48 @@ namespace cs_matrix
             get;
         }
 
-        IMatrix<Key, Val> Multiply(IMatrix<Key, Val> rhs);
-        IVector<Key, Val> Multiply(IVector<Key, Val> rhs);
-        IMatrix<Key, Val> Multiply(double scalar);
+        IMatrix Multiply(IMatrix rhs);
+        IVector Multiply(IVector rhs);
+        IMatrix Multiply(double scalar);
 
-        IMatrix<Key, Val> Add(IMatrix<Key, Val> rhs);
-        IMatrix<Key, Val> Minus(IMatrix<Key, Val> rhs);
+        IMatrix Add(IMatrix rhs);
+        IMatrix Minus(IMatrix rhs);
 
-        IVector<Key, Val> this[Key rowKey]
+        IVector this[int rowKey]
         {
             get;
             set;
         }
 
-        IVector<Key, Val> GetColumn(Key colKey);
+        IVector GetColumn(int colKey);
 
-        Val this[Key row, Key col]
+        double this[int row, int col]
         {
             get;
             set;
         }
 
-        bool HasValue(Key row, Key col);
+        bool HasValue(int row, int col);
 
-        IMatrix<Key, Val> Clone();
-        void Copy(IMatrix<Key, Val> rhs);
+        IMatrix Clone();
+        void Copy(IMatrix rhs);
        
-        Key[] RowKeys { get; }
-        Key[] ColKeys { get; }
+        int[] RowKeys { get; }
+        int[] ColKeys { get; }
 
-        IMatrix<Key, Val> Zero(int rowCount, int colCount, Val default_val);
-        IMatrix<Key, Val> Zero(Key[] rows, Key[] cols, Val default_val);
+        IMatrix Zero(int rowCount, int colCount, double default_val);
+        IMatrix Zero(int[] rows, int[] cols, double default_val);
 
-        IMatrix<Key, Val> Identity(int dimension);
-        IMatrix<Key, Val> Identity(Key[] attr);
+        IMatrix Identity(int dimension);
+        IMatrix Identity(int[] attr);
 
-        IMatrix<Key, Val> Transpose();
+        IMatrix Transpose();
 
-        IEnumerable<IVector<Key, Val>> NonEmptyRows { get; }
+        IEnumerable<IVector> NonEmptyRows { get; }
         
-        Val DefaultValue { get; }
+        double DefaultValue { get; }
 
-        IMatrix<Key, Val> SubMatrix(Key[] rows, Key[] cols);
+        IMatrix SubMatrix(int[] rows, int[] cols);
 
         bool IsSymmetric { get; }
 
@@ -67,7 +67,7 @@ namespace cs_matrix
         /// </summary>
         /// <param name="W"></param>
         /// <returns></returns>
-        IMatrix<Key, Val> ScalarMultiply(IVector<Key, Val> W);
-        IMatrix<Key, Val> ScalarMultiply(double[] W);
+        IMatrix ScalarMultiply(IVector W);
+        IMatrix ScalarMultiply(double[] W);
     }
 }

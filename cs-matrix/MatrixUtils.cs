@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace cs_matrix
 {
-    public static class MatrixUtils<Key, Val>
+    public static class MatrixUtils
     {
         /// <summary>
         /// The method works by using Gaussian elimination to covert the matrix A to a upper triangular matrix, U, and computes the
@@ -14,7 +14,7 @@ namespace cs_matrix
         /// </summary>
         /// <param name="A">The matrix for which to calculate determinant</param>
         /// <returns>The determinant of A</returns>
-        public static double GetDeterminant(IMatrix<Key, Val> A)
+        public static double GetDeterminant(IMatrix A)
         {
             int colCount = A.ColCount;
             int rowCount = A.RowCount;
@@ -23,11 +23,11 @@ namespace cs_matrix
             double det = 1;
 
             int rowExchangeOpCount = 0;
-            IMatrix<Key, Val> C = GaussianElimination.GetEchelonForm(A, out rowExchangeOpCount);
+            IMatrix C = GaussianElimination.GetEchelonForm(A, out rowExchangeOpCount);
             
-            foreach(Key c in C.ColKeys)
+            foreach(int c in C.ColKeys)
             {
-                det *= (dynamic)C[c, c];
+                det *= C[c, c];
             }
 
             return det * (rowExchangeOpCount % 2 == 0 ? 1 : -1);
@@ -39,15 +39,15 @@ namespace cs_matrix
         /// <param name="R"></param>
         /// <param name="default_value"></param>
         /// <returns></returns>
-        public static IMatrix<int, Val> GetMatrix(List<IVector<int, Val>> R, Val default_value)
+        public static IMatrix GetMatrix(List<IVector> R, double default_value)
         {
             int n = R.Count;
             int m = R[0].Dimension;
 
-            IMatrix<int, Val> T = new SparseMatrix<int, Val>(m, n, default_value);
+            IMatrix T = new SparseMatrix(m, n, default_value);
             for (int c = 0; c < R.Count; ++c)
             {
-                IVector<int, Val> Rcol = R[c];
+                IVector Rcol = R[c];
                 foreach (int r in Rcol.Keys)
                 {
                     T[r, c] = Rcol[r];
@@ -61,21 +61,21 @@ namespace cs_matrix
         /// </summary>
         /// <param name="R"></param>
         /// <returns></returns>
-        public static IMatrix<int, Val> GetMatrix(List<IVector<int, Val>> R)
+        public static IMatrix GetMatrix(List<IVector> R)
         {
-            return GetMatrix(R, (dynamic)0);
+            return GetMatrix(R, 0);
         }
 
-        public static List<IVector<int, Val>> GetColumnVectors(IMatrix<int, Val> A)
+        public static List<IVector> GetColumnVectors(IMatrix A)
         {
             int n = A.ColCount;
             int rowCount = A.RowCount;
 
-            List<IVector<int, Val>> Acols = new List<IVector<int, Val>>();
+            List<IVector> Acols = new List<IVector>();
 
             for (int c = 0; c < n; ++c)
             {
-                IVector<int, Val> Acol = new SparseVector<int, Val>(rowCount, A.DefaultValue);
+                IVector Acol = new SparseVector(rowCount, A.DefaultValue);
                 for (int r = 0; r < rowCount; ++r)
                 {
                     Acol[r] = A[r, c];

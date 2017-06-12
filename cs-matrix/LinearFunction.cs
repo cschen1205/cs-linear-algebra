@@ -24,20 +24,20 @@ namespace cs_matrix
     /// f(x) = A * x, is a linear function, where A is a matrix
     /// If A is invertiable, then f(x) is one-to-one (i.e. f(x1) = f(x2) if and only if x1=x2) and onto (i.e. for each y \in U, we can find x \in U, such that f(x) = y)
     /// </summary>
-    public class LinearFunction<Key, Val>
+    public class LinearFunction
     {
-        protected RowSpace<Key, Val> mRowSpace = null;
+        protected RowSpace mRowSpace = null;
 
-        public LinearFunction(IMatrix<Key, Val> A)
+        public LinearFunction(IMatrix A)
         {
-            mRowSpace = new RowSpace<Key, Val>(A);
+            mRowSpace = new RowSpace(A);
         }
 
         /// <summary>
         /// The basis of the kernel of f(x)
         /// The kernel of f(x) is {x | f(x) = 0, x \in V }, represented as Ker f(x)
         /// </summary>
-        public List<IVector<Key, Val>> KernelBasis
+        public List<IVector> KernelBasis
         {
             get
             {

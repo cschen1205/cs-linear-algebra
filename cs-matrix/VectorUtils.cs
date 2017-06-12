@@ -5,13 +5,13 @@ using System.Text;
 
 namespace cs_matrix
 {
-    public static class VectorUtils<Key, Val>
+    public static class VectorUtils
     {
 
-        public static List<IVector<Key, Val>> Normalize(IEnumerable<IVector<Key, Val>> vlist)
+        public static List<IVector> Normalize(IEnumerable<IVector> vlist)
         {
-            List<IVector<Key, Val>> vstarlist = new List<IVector<Key, Val>>();
-            foreach (IVector<Key, Val> v in vlist)
+            List<IVector> vstarlist = new List<IVector>();
+            foreach (IVector v in vlist)
             {
                 vstarlist.Add(v.Normalize());
             }
@@ -19,11 +19,11 @@ namespace cs_matrix
             return vstarlist;
         }
 
-        public static List<IVector<Key, Val>> Normalize(IEnumerable<IVector<Key, Val>> vlist, out List<double> norms)
+        public static List<IVector> Normalize(IEnumerable<IVector> vlist, out List<double> norms)
         {
             norms = new List<double>();
-            List<IVector<Key, Val>> vstarlist = new List<IVector<Key, Val>>();
-            foreach (IVector<Key, Val> v in vlist)
+            List<IVector> vstarlist = new List<IVector>();
+            foreach (IVector v in vlist)
             {
                 norms.Add(v.Norm(2));
                 vstarlist.Add(v.Normalize());
@@ -32,10 +32,10 @@ namespace cs_matrix
             return vstarlist;
         }
 
-        public static List<IVector<Key, Val>> RemoveZeroVectors(IEnumerable<IVector<Key, Val>> vlist)
+        public static List<IVector> RemoveZeroVectors(IEnumerable<IVector> vlist)
         {
-            List<IVector<Key, Val>> vstarlist = new List<IVector<Key, Val>>();
-            foreach (IVector<Key, Val> v in vlist)
+            List<IVector> vstarlist = new List<IVector>();
+            foreach (IVector v in vlist)
             {
                 if (!v.IsEmpty)
                 {

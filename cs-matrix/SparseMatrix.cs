@@ -6,109 +6,109 @@ using System.Diagnostics;
 
 namespace cs_matrix
 {
-    public class SparseMatrix<Key, Val> : IMatrix<Key, Val>
+    public class SparseMatrix : IMatrix
     {
-        private Val mDefaultVal;
+        private double mDefaultVal;
 
-        private Dictionary<Key, SparseVector<Key, Val>> mInternal = new Dictionary<Key, SparseVector<Key, Val>>();
+        private Dictionary<int, SparseVector> mInternal = new Dictionary<int, SparseVector>();
 
-        private Key[] mColKeys;
-        private Key[] mRowKeys;
+        private int[] mColKeys;
+        private int[] mRowKeys;
 
         public SparseMatrix(int rowCount, int colCount)
         {
-            mRowKeys = new Key[rowCount];
+            mRowKeys = new int[rowCount];
             for (int r = 0; r < rowCount; ++r)
             {
-                mRowKeys[r] = (dynamic)r;
+                mRowKeys[r] = r;
             }
 
-            mColKeys = new Key[colCount];
+            mColKeys = new int[colCount];
             for (int c = 0; c < colCount; ++c)
             {
-                mColKeys[c] = (dynamic)c;
+                mColKeys[c] = c;
             }
 
-            mDefaultVal = (dynamic)0;
+            mDefaultVal = 0;
         }
 
-        public SparseMatrix(int rowCount, int colCount, Val default_val)
+        public SparseMatrix(int rowCount, int colCount, double default_val)
         {
-            mRowKeys = new Key[rowCount];
+            mRowKeys = new int[rowCount];
             for (int r = 0; r < rowCount; ++r)
             {
-                mRowKeys[r] = (dynamic)r;
+                mRowKeys[r] = r;
             }
 
-            mColKeys = new Key[colCount];
+            mColKeys = new int[colCount];
             for (int c = 0; c < colCount; ++c)
             {
-                mColKeys[c] = (dynamic)c;
+                mColKeys[c] = c;
             }
 
             mDefaultVal = default_val;
         }
 
-        public SparseMatrix(Val[][] matrix)
+        public SparseMatrix(double[][] matrix)
         {
             int rowCount = matrix.Length;
             int colCount = matrix[0].Length;
 
-            mRowKeys = new Key[rowCount];
+            mRowKeys = new int[rowCount];
             for (int r = 0; r < rowCount; ++r)
             {
-                mRowKeys[r] = (dynamic)r;
+                mRowKeys[r] = r;
             }
 
-            mColKeys = new Key[colCount];
+            mColKeys = new int[colCount];
             for (int c = 0; c < colCount; ++c)
             {
-                mColKeys[c] = (dynamic)c;
+                mColKeys[c] = c;
             }
 
-            mDefaultVal = (dynamic)0;
+            mDefaultVal = 0;
 
             for (int r = 0; r < rowCount; ++r)
             {
                 for (int c = 0; c < colCount; ++c)
                 {
-                    this[(dynamic)r, (dynamic)c] = matrix[r][c];
+                    this[r, c] = matrix[r][c];
                 }
             }
         }
 
-        public SparseMatrix(Val[,] matrix)
+        public SparseMatrix(double[,] matrix)
         {
             int rowCount = matrix.GetLength(0);
             int colCount = matrix.GetLength(1);
 
-            mRowKeys = new Key[rowCount];
+            mRowKeys = new int[rowCount];
             for (int r = 0; r < rowCount; ++r)
             {
-                mRowKeys[r] = (dynamic)r;
+                mRowKeys[r] = r;
             }
 
-            mColKeys = new Key[colCount];
+            mColKeys = new int[colCount];
             for (int c = 0; c < colCount; ++c)
             {
-                mColKeys[c] = (dynamic)c;
+                mColKeys[c] = c;
             }
 
-            mDefaultVal = (dynamic)0;
+            mDefaultVal = 0;
 
             for (int r = 0; r < rowCount; ++r)
             {
                 for (int c = 0; c < colCount; ++c)
                 {
-                    this[(dynamic)r, (dynamic)c] = matrix[r, c];
+                    this[r, c] = matrix[r, c];
                 }
             }
         }
 
-        public SparseMatrix(Key[] rows, Key[] cols, Val default_val)
+        public SparseMatrix(int[] rows, int[] cols, double default_val)
         {
-            mRowKeys = (Key[])rows.Clone();
-            mColKeys = (Key[])cols.Clone();
+            mRowKeys = (int[])rows.Clone();
+            mColKeys = (int[])cols.Clone();
 
             mDefaultVal = default_val;
         }
@@ -124,47 +124,47 @@ namespace cs_matrix
             get { return mColKeys.Length; }
         }
 
-        public virtual IMatrix<Key, Val> Multiply(IMatrix<Key, Val> rhs)
+        public virtual IMatrix Multiply(IMatrix rhs)
         {
             Debug.Assert(this.ColCount == rhs.RowCount);
 
-            SparseVector<Key, Val> row1;
-            IVector<Key, Val> col2;
+            SparseVector row1;
+            IVector col2;
 
-            IMatrix<Key, Val> result = this.Zero(mRowKeys, rhs.ColKeys, mDefaultVal);
+            IMatrix result = this.Zero(mRowKeys, rhs.ColKeys, mDefaultVal);
 
-            foreach (KeyValuePair<Key, SparseVector<Key, Val>> entry in mInternal)
+            foreach (KeyValuePair<int, SparseVector> entry in mInternal)
             {
                 row1 = entry.Value;
-                foreach (Key c2 in rhs.ColKeys)
+                foreach (int c2 in rhs.ColKeys)
                 {
                     col2 = rhs.GetColumn(c2);
-                    result[entry.Key, c2] = (dynamic)row1.Multiply(col2);
+                    result[entry.Key, c2] = row1.Multiply(col2);
                 }
             }
 
             return result;
         }
 
-        public IVector<Key, Val> Multiply(IVector<Key, Val> rhs)
+        public IVector Multiply(IVector rhs)
         {
             Debug.Assert(this.ColCount == rhs.Dimension);
 
-            SparseVector<Key, Val> row1;
-            IVector<Key, Val> result = rhs.Zero(mRowKeys, mDefaultVal);
-            foreach (KeyValuePair<Key, SparseVector<Key, Val>> entry in mInternal)
+            SparseVector row1;
+            IVector result = rhs.Zero(mRowKeys, mDefaultVal);
+            foreach (KeyValuePair<int, SparseVector> entry in mInternal)
             {
                 row1 = entry.Value;
-                result[entry.Key] = (dynamic)row1.Multiply(rhs);
+                result[entry.Key] = row1.Multiply(rhs);
             }
             return result;
         }
 
-        public Val this[Key row, Key col]
+        public double this[int row, int col]
         {
             get
             {
-                SparseVector<Key, Val> rowVector;
+                SparseVector rowVector;
                 if (mInternal.TryGetValue(row, out rowVector))
                 {
                     return rowVector[col];
@@ -173,7 +173,7 @@ namespace cs_matrix
             }
             set
             {
-                SparseVector<Key, Val> rowVector;
+                SparseVector rowVector;
 
 #if SK_LINALG_CHECK_ARRAY_BOUNDARY
                 if (!mColKeys.Contains(col))
@@ -190,7 +190,7 @@ namespace cs_matrix
 
                 if (!mInternal.TryGetValue(row, out rowVector))
                 {
-                    rowVector = new SparseVector<Key, Val>(mColKeys, mDefaultVal);
+                    rowVector = new SparseVector(mColKeys, mDefaultVal);
                     rowVector.ID = row;
                     mInternal[row] = rowVector;
                 }
@@ -199,54 +199,54 @@ namespace cs_matrix
             }
         }
 
-        public IMatrix<Key, Val> Clone()
+        public IMatrix Clone()
         {
-            SparseMatrix<Key, Val> clone = new SparseMatrix<Key, Val>(mRowKeys, mColKeys, mDefaultVal);
+            SparseMatrix clone = new SparseMatrix(mRowKeys, mColKeys, mDefaultVal);
             clone.Copy(this);
             return clone;
         }
 
-        public void Copy(IMatrix<Key, Val> rhs)
+        public void Copy(IMatrix rhs)
         {
             mInternal.Clear();
 
-            SparseMatrix<Key, Val> rhs2 = rhs as SparseMatrix<Key, Val>;
-            foreach (KeyValuePair<Key, SparseVector<Key, Val>> entry in rhs2.mInternal)
+            SparseMatrix rhs2 = rhs as SparseMatrix;
+            foreach (KeyValuePair<int, SparseVector> entry in rhs2.mInternal)
             {
-                mInternal[entry.Key] = entry.Value.Clone() as SparseVector<Key, Val>;
+                mInternal[entry.Key] = entry.Value.Clone() as SparseVector;
             }
         }
 
-        public virtual IMatrix<Key, Val> Zero(int rowCount, int colCount, Val default_val)
+        public virtual IMatrix Zero(int rowCount, int colCount, double default_val)
         {
-            return new SparseMatrix<Key, Val>(rowCount, colCount, default_val);
+            return new SparseMatrix(rowCount, colCount, default_val);
         }
 
-        public virtual IMatrix<Key, Val> Zero(Key[] rows, Key[] cols, Val default_val)
+        public virtual IMatrix Zero(int[] rows, int[] cols, double default_val)
         {
-            return new SparseMatrix<Key, Val>(rows, cols, default_val);
+            return new SparseMatrix(rows, cols, default_val);
         }
 
-        public IVector<Key, Val> this[Key row]
+        public IVector this[int row]
         {
             get
             {
-                SparseVector<Key, Val> rowData;
+                SparseVector rowData;
                 if (mInternal.TryGetValue(row, out rowData))
                 {
                     return rowData;
                 }
-                return new SparseVector<Key, Val>(mColKeys, mDefaultVal);
+                return new SparseVector(mColKeys, mDefaultVal);
             }
             set
             {
                 value.ID = row;
-                mInternal[row] = value as SparseVector<Key, Val>;
+                mInternal[row] = value as SparseVector;
             }
         }
 
 
-        public Key[] RowKeys
+        public int[] RowKeys
         {
             get
             {
@@ -254,15 +254,15 @@ namespace cs_matrix
             }
         }
 
-        public Key[] ColKeys
+        public int[] ColKeys
         {
             get { return mColKeys; }
         }
 
 
-        public bool HasValue(Key row, Key col)
+        public bool HasValue(int row, int col)
         {
-            SparseVector<Key, Val> rowVector;
+            SparseVector rowVector;
             if (!mInternal.TryGetValue(row, out rowVector))
             {
                 return false;
@@ -271,36 +271,36 @@ namespace cs_matrix
         }
 
 
-        public IMatrix<Key, Val> Multiply(double scalar)
+        public IMatrix Multiply(double scalar)
         {
-            SparseMatrix<Key, Val> result = Zero(mRowKeys, mColKeys, mDefaultVal) as SparseMatrix<Key, Val>;
-            foreach(KeyValuePair<Key, SparseVector<Key, Val>> k in mInternal)
+            SparseMatrix result = Zero(mRowKeys, mColKeys, mDefaultVal) as SparseMatrix;
+            foreach(KeyValuePair<int, SparseVector> k in mInternal)
             {
                 result[k.Key] = k.Value.Multiply(scalar);
             }
             return result;
         }
 
-        public IMatrix<Key, Val> Add(IMatrix<Key, Val> rhs)
+        public IMatrix Add(IMatrix rhs)
         {
             Debug.Assert(RowCount == rhs.RowCount);
             Debug.Assert(ColCount == rhs.ColCount);
 
-            HashSet<Key> allRows = new HashSet<Key>();
-            foreach (Key k in mInternal.Keys)
+            HashSet<int> allRows = new HashSet<int>();
+            foreach (int k in mInternal.Keys)
             {
                 allRows.Add(k);
             }
-            foreach (Key k in rhs.RowKeys)
+            foreach (int k in rhs.RowKeys)
             {
                 allRows.Add(k);
             }
 
-            IMatrix<Key, Val> result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
-            foreach (Key k in allRows)
+            IMatrix result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
+            foreach (int k in allRows)
             {
-                IVector<Key, Val> row1 = this[k];
-                IVector<Key, Val> row2 = rhs[k];
+                IVector row1 = this[k];
+                IVector row2 = rhs[k];
                 if (row1 == null)
                 {
                     result[k] = row2.Clone();
@@ -318,26 +318,26 @@ namespace cs_matrix
             return result;
         }
 
-        public IMatrix<Key, Val> Minus(IMatrix<Key, Val> rhs)
+        public IMatrix Minus(IMatrix rhs)
         {
             Debug.Assert(RowCount == rhs.RowCount);
             Debug.Assert(ColCount == rhs.ColCount);
 
-            HashSet<Key> allRows = new HashSet<Key>();
-            foreach (Key k in mInternal.Keys)
+            HashSet<int> allRows = new HashSet<int>();
+            foreach (int k in mInternal.Keys)
             {
                 allRows.Add(k);
             }
-            foreach (Key k in rhs.RowKeys)
+            foreach (int k in rhs.RowKeys)
             {
                 allRows.Add(k);
             }
 
-            IMatrix<Key, Val> result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
-            foreach (Key k in allRows)
+            IMatrix result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
+            foreach (int k in allRows)
             {
-                IVector<Key, Val> row1 = this[k];
-                IVector<Key, Val> row2 = rhs[k];
+                IVector row1 = this[k];
+                IVector row2 = rhs[k];
                 if (row1 == null)
                 {
                     result[k] = row2.Multiply(-1);
@@ -356,28 +356,28 @@ namespace cs_matrix
         }
 
 
-        public IMatrix<Key, Val> Identity(int dimension)
+        public IMatrix Identity(int dimension)
         {
-            IMatrix<Key, Val> I = this.Zero(dimension, dimension, mDefaultVal);
-            Val one = (dynamic)1;
+            IMatrix I = this.Zero(dimension, dimension, mDefaultVal);
+            double one = 1;
 
             for (int i = 0; i < dimension; ++i)
             {
-                Key k = (dynamic)i;
+                int k = i;
                 I[k, k] = one;
             }
 
             return I;
         }
 
-        public IMatrix<Key, Val> Identity(Key[] keys)
+        public IMatrix Identity(int[] keys)
         {
-            IMatrix<Key, Val> I = this.Zero(keys, keys, mDefaultVal);
-            Val one = (dynamic)1;
+            IMatrix I = this.Zero(keys, keys, mDefaultVal);
+            double one = 1;
 
             for (int i = 0; i < keys.Length; ++i)
             {
-                Key k = keys[i];
+                int k = keys[i];
                 I[k, k] = one;
             }
 
@@ -385,12 +385,12 @@ namespace cs_matrix
         }
 
 
-        public IMatrix<Key, Val> Transpose()
+        public IMatrix Transpose()
         {
-            IMatrix<Key, Val> clone = Zero(mColKeys, mRowKeys, mDefaultVal);
-            foreach (Key col in mColKeys)
+            IMatrix clone = Zero(mColKeys, mRowKeys, mDefaultVal);
+            foreach (int col in mColKeys)
             {
-                foreach (Key row in mRowKeys)
+                foreach (int row in mRowKeys)
                 {
                     clone[col, row] = this[row, col];
                 }
@@ -400,7 +400,7 @@ namespace cs_matrix
         }
 
 
-        public IEnumerable<IVector<Key, Val>> NonEmptyRows
+        public IEnumerable<IVector> NonEmptyRows
         {
             get
             {
@@ -408,24 +408,24 @@ namespace cs_matrix
             }
         }
 
-        public Val DefaultValue
+        public double DefaultValue
         {
             get { return mDefaultVal; }
         }
 
         public override bool Equals(object obj)
         {
-            SparseMatrix<Key, Val> rhs = obj as SparseMatrix<Key, Val>;
+            SparseMatrix rhs = obj as SparseMatrix;
             if (RowCount != rhs.RowCount || ColCount != rhs.ColCount)
             {
                 return false;
             }
 
-            foreach (Key row in mRowKeys)
+            foreach (int row in mRowKeys)
             {
-                foreach (Key col in mColKeys)
+                foreach (int col in mColKeys)
                 {
-                    if (System.Math.Abs((dynamic)this[row, col] - (dynamic)rhs[row, col]) > 1e-10)
+                    if (System.Math.Abs(this[row, col] - rhs[row, col]) > 1e-10)
                     {
                         return false;
                     }
@@ -438,10 +438,10 @@ namespace cs_matrix
         public override int GetHashCode()
         {
             int hash = 31;
-            foreach (Key row in mInternal.Keys)
+            foreach (int row in mInternal.Keys)
             {
-                SparseVector<Key, Val> rowVec = mInternal[row];
-                foreach (Key col in rowVec.Keys)
+                SparseVector rowVec = mInternal[row];
+                foreach (int col in rowVec.Keys)
                 {
                     hash = hash * 31 + rowVec[col].GetHashCode();
                 }
@@ -451,10 +451,10 @@ namespace cs_matrix
         }
 
 
-        public IVector<Key, Val> GetColumn(Key colKey)
+        public IVector GetColumn(int colKey)
         {
-            SparseVector<Key, Val> colVec = new SparseVector<Key, Val>(mRowKeys, mDefaultVal);
-            foreach (Key k in mRowKeys)
+            SparseVector colVec = new SparseVector(mRowKeys, mDefaultVal);
+            foreach (int k in mRowKeys)
             {
                 colVec[k] = this[k, colKey];
             }
@@ -462,12 +462,12 @@ namespace cs_matrix
         }
 
 
-        public IMatrix<Key, Val> SubMatrix(Key[] rows, Key[] cols)
+        public IMatrix SubMatrix(int[] rows, int[] cols)
         {
-            IMatrix<Key, Val> sm = new SparseMatrix<Key, Val>(rows, cols, mDefaultVal);
-            foreach (Key row in rows)
+            IMatrix sm = new SparseMatrix(rows, cols, mDefaultVal);
+            foreach (int row in rows)
             {
-                foreach (Key col in cols)
+                foreach (int col in cols)
                 {
                     sm[row, col] = this[row, col];
                 }
@@ -479,11 +479,11 @@ namespace cs_matrix
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (Key row in mRowKeys)
+            foreach (int row in mRowKeys)
             {
                 sb.Append("{");
                 bool first = true;
-                foreach (Key col in mColKeys)
+                foreach (int col in mColKeys)
                 {
                     if (first)
                     {
@@ -506,13 +506,13 @@ namespace cs_matrix
             {
                 if (RowCount != ColCount) return false;
 
-                foreach (SparseVector<Key, Val> rowVec in NonEmptyRows)
+                foreach (SparseVector rowVec in NonEmptyRows)
                 {
-                    Key row = rowVec.ID;
-                    foreach (Key col in rowVec.NonEmptyKeys)
+                    int row = rowVec.ID;
+                    foreach (int col in rowVec.NonEmptyKeys)
                     {
                         if (row.Equals(col)) continue;
-                        double diff = System.Math.Abs((dynamic)rowVec[col] - (dynamic)this[col, row]);
+                        double diff = System.Math.Abs(rowVec[col] - this[col, row]);
                         
                         bool equals = diff <= 1e-10;
                         
@@ -530,23 +530,23 @@ namespace cs_matrix
 
 
 
-        public IMatrix<Key, Val> ScalarMultiply(IVector<Key, Val> W)
+        public IMatrix ScalarMultiply(IVector W)
         {
-            IMatrix<Key, Val> result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
-            foreach (Key row in mInternal.Keys)
+            IMatrix result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
+            foreach (int row in mInternal.Keys)
             {
-                double scalar = (dynamic)W[row];
+                double scalar = W[row];
                 result[row] = mInternal[row].Multiply(scalar);
             }
             return result;
         }
 
-        public IMatrix<Key, Val> ScalarMultiply(double[] W)
+        public IMatrix ScalarMultiply(double[] W)
         {
-            IMatrix<Key, Val> result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
-            foreach (Key row in mInternal.Keys)
+            IMatrix result = this.Zero(mRowKeys, mColKeys, mDefaultVal);
+            foreach (int row in mInternal.Keys)
             {
-                double scalar = W[(dynamic)row];
+                double scalar = W[row];
                 result[row] = mInternal[row].Multiply(scalar);
             }
             return result;

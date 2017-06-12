@@ -5,65 +5,65 @@ using System.Text;
 
 namespace cs_matrix
 {
-    public class SparseVector<Key, Val> : IVector<Key, Val>
+    public class SparseVector : IVector
     {
-        private Dictionary<Key, Val> mInternal = new Dictionary<Key, Val>();
-        private Key[] mKeys;
+        private Dictionary<int, double> mInternal = new Dictionary<int, double>();
+        private int[] mKeys;
         private static double EPSILON = 1e-20;
-        private Val mDefaultVal;
+        private double mDefaultVal;
 
-        public SparseVector(Val[] v)
+        public SparseVector(double[] v)
         {
             int length = v.Length;
-            mKeys = new Key[length];
+            mKeys = new int[length];
             for (int i = 0; i < length; ++i)
             {
-                mKeys[i] = (dynamic)i;
+                mKeys[i] = i;
             }
-            mDefaultVal = (dynamic)0;
+            mDefaultVal = 0;
             for (int i = 0; i < length; ++i)
             {
-                this[(dynamic)i] = v[i];
+                this[i] = v[i];
             }
         }
 
-        public SparseVector(int length, Val default_value)
+        public SparseVector(int length, double default_value)
         {
-            mKeys = new Key[length];
+            mKeys = new int[length];
             for (int i = 0; i < length; ++i)
             {
-                mKeys[i] = (dynamic)i;
+                mKeys[i] = i;
             }
             mDefaultVal = default_value;
         }
 
-        public SparseVector(Key[] keys, Val default_val)
+        public SparseVector(int[] keys, double default_val)
         {
-            mKeys = (Key[])keys.Clone();
+            mKeys = (int[])keys.Clone();
             mDefaultVal = default_val;
         }
 
         public SparseVector(int length)
         {
-            mKeys = new Key[length];
+            mKeys = new int[length];
             for (int i = 0; i < length; ++i)
             {
-                mKeys[i] = (dynamic)i;
+                mKeys[i] = i;
             }
-            mDefaultVal = (dynamic)0;
+            mDefaultVal = 0;
         }
 
-        public SparseVector(Key[] keys)
+        public SparseVector(int[] keys)
         {
-            mKeys = (Key[])keys.Clone();
-            mDefaultVal = (dynamic)0;
+            mKeys = (int[])keys.Clone();
+            mDefaultVal = 0;
         }
 
-        public virtual Val this[Key index]
+        public virtual double this[int index]
         {
             get
             {
-                Val val;
+                double val;
                 if(mInternal.TryGetValue(index, out val))
                 {
                     return val;
@@ -90,9 +90,9 @@ namespace cs_matrix
             }
         }
 
-        private static bool Equals(Val val1, Val val2)
+        private static bool Equals(double val1, double val2)
         {
-            double df = (dynamic)val1 - (dynamic)val2;
+            double df = val1 - val2;
             return System.Math.Abs(df) <= EPSILON;
         }
 
@@ -102,40 +102,40 @@ namespace cs_matrix
         }
 
 
-        public virtual IVector<Key, Val> Clone()
+        public virtual IVector Clone()
         {
-            SparseVector<Key, Val> clone = new SparseVector<Key, Val>(mKeys, mDefaultVal);
+            SparseVector clone = new SparseVector(mKeys, mDefaultVal);
             clone.Copy(this);
             return clone;
         }
 
-        public void Copy(IVector<Key, Val> rhs)
+        public void Copy(IVector rhs)
         {
-            SparseVector<Key, Val> rhs2 = rhs as SparseVector<Key, Val>;
+            SparseVector rhs2 = rhs as SparseVector;
             mInternal.Clear();
-            foreach (KeyValuePair<Key, Val> entry in rhs2.mInternal)
+            foreach (KeyValuePair<int, double> entry in rhs2.mInternal)
             {
                 mInternal[entry.Key] = entry.Value;
             }
             mID = rhs2.mID;
         }
 
-        public virtual double Multiply(IVector<Key, Val> rhs)
+        public virtual double Multiply(IVector rhs)
         {
             double productSum = 0;
-            foreach (KeyValuePair<Key, Val> entry in mInternal)
+            foreach (KeyValuePair<int, double> entry in mInternal)
             {
-                productSum += (dynamic)entry.Value * (dynamic)rhs[entry.Key]; 
+                productSum += entry.Value * rhs[entry.Key]; 
             }
             return productSum;
         }
 
-        public virtual IVector<Key, Val> Pow(double scalar)
+        public virtual IVector Pow(double scalar)
         {
-            IVector<Key, Val> result = this.Zero(mKeys, mDefaultVal);
-            foreach (KeyValuePair<Key, Val> entry in mInternal)
+            IVector result = this.Zero(mKeys, mDefaultVal);
+            foreach (KeyValuePair<int, double> entry in mInternal)
             {
-                result[entry.Key] = (dynamic)System.Math.Pow((dynamic)entry.Value, scalar);
+                result[entry.Key] = System.Math.Pow(entry.Value, scalar);
             }
             return result;
         }
@@ -143,31 +143,31 @@ namespace cs_matrix
         public virtual double Sum()
         {
             double sum = 0;
-            foreach (KeyValuePair<Key, Val> entry in mInternal)
+            foreach (KeyValuePair<int, double> entry in mInternal)
             {
-                sum += (dynamic)entry.Value;
+                sum += entry.Value;
             }
             return sum;
         }
 
-        public virtual IVector<Key, Val> Zero(int length, Val default_value)
+        public virtual IVector Zero(int length, double default_value)
         {
-            return new SparseVector<Key, Val>(length, default_value);
+            return new SparseVector(length, default_value);
         }
 
 
-        public IVector<Key, Val> Zero(Key[] keys, Val default_value)
+        public IVector Zero(int[] keys, double default_value)
         {
-            return new SparseVector<Key, Val>(keys, default_value);
+            return new SparseVector(keys, default_value);
         }
 
-        public IVector<Key, Val> Multiply(IMatrix<Key, Val> rhs)
+        public IVector Multiply(IMatrix rhs)
         {
             return rhs.Transpose().Multiply(this);
         }
 
 
-        public Key[] Keys
+        public int[] Keys
         {
             get
             {
@@ -175,7 +175,7 @@ namespace cs_matrix
             }
         }
 
-        public IEnumerable<Key> NonEmptyKeys
+        public IEnumerable<int> NonEmptyKeys
         {
             get
             {
@@ -184,40 +184,40 @@ namespace cs_matrix
         }
 
 
-        public bool HasValue(Key k)
+        public bool HasValue(int k)
         {
             return mInternal.ContainsKey(k);
         }
 
 
-        public IVector<Key, Val> Multiply(double scalar)
+        public IVector Multiply(double scalar)
         {
-            IVector<Key, Val> result = this.Clone();
-            foreach (Key k in result.Keys)
+            IVector result = this.Clone();
+            foreach (int k in result.Keys)
             {
-                result[k] = (dynamic)result[k] * scalar;
+                result[k] = result[k] * scalar;
             }
             return result;
         }
 
 
-        public IVector<Key, Val> Add(IVector<Key, Val> rhs)
+        public IVector Add(IVector rhs)
         {
-            IVector<Key, Val> result = Zero(mKeys, mDefaultVal);
-            foreach (Key key in mKeys)
+            IVector result = Zero(mKeys, mDefaultVal);
+            foreach (int key in mKeys)
             {
-                result[key] = (dynamic)this[key] + (dynamic)rhs[key];
+                result[key] = this[key] + rhs[key];
             }
 
             return result;
         }
 
-        public IVector<Key, Val> Minus(IVector<Key, Val> rhs)
+        public IVector Minus(IVector rhs)
         {
-            IVector<Key, Val> result = Zero(mKeys, mDefaultVal);
-            foreach (Key key in mKeys)
+            IVector result = Zero(mKeys, mDefaultVal);
+            foreach (int key in mKeys)
             {
-                result[key] = (dynamic)this[key] - (dynamic)rhs[key];
+                result[key] = this[key] - rhs[key];
             }
 
             return result;
@@ -235,7 +235,7 @@ namespace cs_matrix
         }
 
 
-        public IVector<Key, Val> ProjectAlong(IVector<Key, Val> rhs)
+        public IVector ProjectAlong(IVector rhs)
         {
             double norm_a = rhs.Multiply(rhs);
             
@@ -247,7 +247,7 @@ namespace cs_matrix
             return rhs.Multiply(sigma);
         }
 
-        public IVector<Key, Val> ProjectAlong(IVector<Key, Val> rhs, out double sigma)
+        public IVector ProjectAlong(IVector rhs, out double sigma)
         {
             double norm_a = rhs.Multiply(rhs);
 
@@ -261,7 +261,7 @@ namespace cs_matrix
         }
 
 
-        public IVector<Key, Val> ProjectOrthogonal(IVector<Key, Val> rhs)
+        public IVector ProjectOrthogonal(IVector rhs)
         {
             return this.Minus(ProjectAlong(rhs));
         }
@@ -271,10 +271,10 @@ namespace cs_matrix
         /// </summary>
         /// <param name="vlist">a set of vectors perpendicular to each other</param>
         /// <returns>the vector perpendicular to all the vectors in the vector space spanned by vlist</returns>
-        public IVector<Key, Val> ProjectOrthogonal(IEnumerable<IVector<Key, Val>> vlist)
+        public IVector ProjectOrthogonal(IEnumerable<IVector> vlist)
         {
-            IVector<Key, Val> b = this;
-            foreach(IVector<Key, Val> v in vlist)
+            IVector b = this;
+            foreach(IVector v in vlist)
             {
                 b = b.Minus(b.ProjectAlong(v));
             }
@@ -282,25 +282,25 @@ namespace cs_matrix
             return b;
         }
 
-        public Val DefaultValue
+        public double DefaultValue
         {
             get { return mDefaultVal; }
         }
 
 
-        public IVector<Key, Val> Normalize()
+        public IVector Normalize()
         {
             double norm = Norm(2); // L2 norm is the cartesian distance
             if (Equals(norm, 0))
             {
                 return this.Zero(mKeys, mDefaultVal);
             }
-            SparseVector<Key, Val> clone = this.Clone() as SparseVector<Key, Val>;
+            SparseVector clone = this.Clone() as SparseVector;
             
-            List<Key> keys = clone.mInternal.Keys.ToList();
-            foreach (Key k in keys)
+            List<int> keys = clone.mInternal.Keys.ToList();
+            foreach (int k in keys)
             {
-                clone[k] = clone[k] / (dynamic)norm;
+                clone[k] = clone[k] / norm;
             }
             return clone;
         }
@@ -310,9 +310,9 @@ namespace cs_matrix
             if (level == 1)
             {
                 double sum = 0;
-                foreach (Val val in this.mInternal.Values)
+                foreach (double val in this.mInternal.Values)
                 {
-                    sum += System.Math.Abs((dynamic)val);
+                    sum += System.Math.Abs(val);
                 }
                 return sum;
             }
@@ -323,18 +323,18 @@ namespace cs_matrix
             else
             {
                 double sum = 0;
-                foreach (Val val in this.mInternal.Values)
+                foreach (double val in this.mInternal.Values)
                 {
-                    sum += System.Math.Pow(System.Math.Abs((dynamic)val), level);
+                    sum += System.Math.Pow(System.Math.Abs(val), level);
                 }
                 return System.Math.Pow(sum, 1.0 / level);
             }
         }
 
 
-        public IVector<Key, Val> ProjectOrthogonal(List<IVector<Key, Val>> vlist, out Dictionary<int, double> alpha)
+        public IVector ProjectOrthogonal(List<IVector> vlist, out Dictionary<int, double> alpha)
         {
-            IVector<Key, Val> b = this;
+            IVector b = this;
             double sigma;
 
             alpha = new Dictionary<int, double>();
@@ -342,8 +342,8 @@ namespace cs_matrix
             
             for (int i=0; i < vlist.Count; ++i)
             {
-                IVector<Key, Val> v = vlist[i];
-                IVector<Key, Val> b_along = b.ProjectAlong(v, out sigma);
+                IVector v = vlist[i];
+                IVector b_along = b.ProjectAlong(v, out sigma);
                 b = b.Minus(b_along);
                 alpha[i] = sigma;
             }
@@ -353,15 +353,15 @@ namespace cs_matrix
 
         public override bool Equals(object obj)
         {
-            SparseVector<Key, Val> rhs = obj as SparseVector<Key, Val>;
+            SparseVector rhs = obj as SparseVector;
             if (Dimension != rhs.Dimension)
             {
                 return false;
             }
 
-            foreach (Key k in Keys)
+            foreach (int k in Keys)
             {
-                if(System.Math.Abs((dynamic)this[k] - (dynamic)rhs[k]) > 1e-10)
+                if(System.Math.Abs(this[k] - rhs[k]) > 1e-10)
                 {
                     return false;
                 }
@@ -373,7 +373,7 @@ namespace cs_matrix
         public override int GetHashCode()
         {
             int hash = 31;
-            foreach (Val v in mInternal.Values)
+            foreach (double v in mInternal.Values)
             {
                 hash = hash * 31 + v.GetHashCode();
             }
@@ -385,7 +385,7 @@ namespace cs_matrix
             StringBuilder sb = new StringBuilder();
             sb.Append("{");
             bool first = true;
-            foreach (Key k in mInternal.Keys)
+            foreach (int k in mInternal.Keys)
             {
                 if (first)
                 {
@@ -401,8 +401,8 @@ namespace cs_matrix
             return sb.ToString();
         }
 
-        protected Key mID = default(Key);
-        public Key ID
+        protected int mID = 0;
+        public int ID
         {
             get
             {
@@ -415,32 +415,32 @@ namespace cs_matrix
         }
 
 
-        public IVector<Key, Val> Divide(IVector<Key, Val> rhs)
+        public IVector Divide(IVector rhs)
         {
-            IVector<Key, Val> result = Zero(mKeys, mDefaultVal);
-            foreach(KeyValuePair<Key, Val> k in mInternal)
+            IVector result = Zero(mKeys, mDefaultVal);
+            foreach(KeyValuePair<int, double> k in mInternal)
             {
-                result[k.Key] = (dynamic)k.Value / (dynamic)rhs[k.Key];
+                result[k.Key] = k.Value / rhs[k.Key];
             }
             return result;
         }
 
-        public IVector<Key, Val> Sqrt()
+        public IVector Sqrt()
         {
-            IVector<Key, Val> result = Zero(mKeys, mDefaultVal);
-            foreach (KeyValuePair<Key, Val> k in mInternal)
+            IVector result = Zero(mKeys, mDefaultVal);
+            foreach (KeyValuePair<int, double> k in mInternal)
             {
-                result[k.Key] = (dynamic) System.Math.Sqrt((dynamic)k.Value);
+                result[k.Key] =  System.Math.Sqrt(k.Value);
             }
             return result;
         }
 
-        public IVector<Key, Val> Log()
+        public IVector Log()
         {
-            IVector<Key, Val> result = Zero(mKeys, mDefaultVal);
-            foreach (KeyValuePair<Key, Val> k in mInternal)
+            IVector result = Zero(mKeys, mDefaultVal);
+            foreach (KeyValuePair<int, double> k in mInternal)
             {
-                result[k.Key] = (dynamic)System.Math.Log((dynamic)k.Value);
+                result[k.Key] = System.Math.Log(k.Value);
             }
 
             return result;

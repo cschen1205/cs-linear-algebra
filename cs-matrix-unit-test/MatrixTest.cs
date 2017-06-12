@@ -14,15 +14,15 @@ namespace cs_matrix_unit_test
                 new double[] { 6, 167, -68},
                 new double[] { -4, 24, -41}
             };
-        public static SparseMatrix<int, double> A = new SparseMatrix<int, double>(Data);
+        public static SparseMatrix A = new SparseMatrix(Data);
 
         [Fact]
         public void TestQR()
         {
-            IMatrix<int, double> Q, R;
-            QR<double>.Factorize(A, out Q, out R);
+            IMatrix Q, R;
+            QR.Factorize(A, out Q, out R);
 
-            IMatrix<int, double> Api = Q.Multiply(R);
+            IMatrix Api = Q.Multiply(R);
 
             for (int r = 0; r < A.RowCount; ++r)
             {
@@ -42,7 +42,7 @@ namespace cs_matrix_unit_test
             int rowCount = random.Next(2, 20);
             int colCount = random.Next(2, 20);
 
-            IMatrix<int, double> C = new SparseMatrix<int, double>(rowCount, colCount);
+            IMatrix C = new SparseMatrix(rowCount, colCount);
             for (int i = 0; i < rowCount; ++i)
             {
                 for (int j = 0; j < colCount; ++j)
@@ -54,8 +54,8 @@ namespace cs_matrix_unit_test
                 }
             }
 
-            IMatrix<int, double> M = C.Multiply(C.Transpose());
-            Assert.True(M.Symmetric);
+            IMatrix M = C.Multiply(C.Transpose());
+            Assert.True(M.IsSymmetric);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestGetColumnVectors()
         {
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
 
             for (int r = 0; r < A.RowCount; ++r)
             {
@@ -90,8 +90,8 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestGetMatrix()
         {
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
-            IMatrix<int, double> Api = MatrixUtils<int, double>.GetMatrix(Acols, 0);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
+            IMatrix Api = MatrixUtils.GetMatrix(Acols, 0);
 
             for (int r = 0; r < A.RowCount; ++r)
             {
@@ -105,8 +105,8 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestOrthogonalization()
         {
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
-            List<IVector<int, double>> vstarlist = Orthogonalization<int, double>.Orthogonalize(Acols);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
+            List<IVector> vstarlist = Orthogonalization.Orthogonalize(Acols);
             for (int i = 0; i < vstarlist.Count-1; ++i)
             {
                 for (int j = i + 1; j < vstarlist.Count; ++j)
@@ -120,9 +120,9 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestOrthoNormal()
         {
-            List<IVector<int, double>> Rcols;
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
-            List<IVector<int, double>> vstarlist = Orthogonalization<int, double>.Orthogonalize(Acols, out Rcols);
+            List<IVector> Rcols;
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
+            List<IVector> vstarlist = Orthogonalization.Orthogonalize(Acols, out Rcols);
 
             for (int i = 0; i < Rcols.Count; ++i)
             {
@@ -137,7 +137,7 @@ namespace cs_matrix_unit_test
 
             for (int i = 0; i < Acols.Count; ++i)
             {
-                IVector<int, double> pi = new SparseVector<int, double>(Acols[i].Dimension);
+                IVector pi = new SparseVector(Acols[i].Dimension);
                 for (int j = 0; j < vstarlist.Count; ++j)
                 {
                     pi = pi.Add(vstarlist[j].Multiply(Rcols[i][j]));
@@ -151,7 +151,7 @@ namespace cs_matrix_unit_test
             }
 
             List<double> norms;
-            List<IVector<int, double>> qlist = VectorUtils<int, double>.Normalize(vstarlist, out norms);
+            List<IVector> qlist = VectorUtils.Normalize(vstarlist, out norms);
 
             for (int i = 0; i < qlist.Count - 1; ++i)
             {
@@ -167,7 +167,7 @@ namespace cs_matrix_unit_test
                 Assert.Equal(norms[i], vstarlist[i].Norm(2));
             }
 
-            IMatrix<int, double> R = MatrixUtils<int, double>.GetMatrix(Rcols);
+            IMatrix R = MatrixUtils.GetMatrix(Rcols);
             foreach (int r in R.RowKeys)
             {
                 R[r] = R[r].Multiply(norms[r]);
@@ -185,7 +185,7 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestNorm()
         {
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
             double norm = System.Math.Sqrt(Acols[0].Multiply(Acols[0]));
             Assert.Equal(norm, Acols[0].Norm(2));
         }
@@ -193,8 +193,8 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestMinus()
         {
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
-            IVector<int, double> pi = Acols[0].Minus(Acols[1]);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
+            IVector pi = Acols[0].Minus(Acols[1]);
 
             for (int i = 0; i < pi.Dimension; ++i)
             {
@@ -205,7 +205,7 @@ namespace cs_matrix_unit_test
         [Fact]
         public void TestZero()
         {
-            List<IVector<int, double>> Acols = MatrixUtils<int, double>.GetColumnVectors(A);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
             for (int i = 0; i < Acols.Count; ++i)
             {
                 Assert.False(Acols[i].IsEmpty);

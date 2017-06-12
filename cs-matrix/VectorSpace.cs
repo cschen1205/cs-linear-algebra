@@ -25,20 +25,20 @@ namespace cs_matrix
     ///   
     /// The dimension of V is the number of vectors in its basis
     /// </summary>
-    public class VectorSpace<Key, Val>
+    public class VectorSpace
     {
-        protected List<IVector<Key, Val>> mOrthogonalBasis = new List<IVector<Key,Val>>();
-        protected List<IVector<Key, Val>> mOrthoNormalBasis = new List<IVector<Key, Val>>();
+        protected List<IVector> mOrthogonalBasis = new List<IVector>();
+        protected List<IVector> mOrthoNormalBasis = new List<IVector>();
 
         /// <summary>
         /// The vector space is represented by V = { x | Ax = 0 }
         /// In this case V is also known the null space of A
         /// </summary>
         /// <param name="A"></param>
-        public VectorSpace(IMatrix<Key, Val> A)
+        public VectorSpace(IMatrix A)
         {
             mOrthogonalBasis = FindNullSpace(A);
-            mOrthoNormalBasis = VectorUtils<Key, Val>.Normalize(mOrthogonalBasis);
+            mOrthoNormalBasis = VectorUtils.Normalize(mOrthogonalBasis);
         }
 
         /// <summary>
@@ -46,23 +46,23 @@ namespace cs_matrix
         /// </summary>
         /// <param name="A">the matrix</param>
         /// <returns>The orthogonal basis of the null space of A</returns>
-        public static List<IVector<Key, Val>> FindNullSpace(IMatrix<Key, Val> A)
+        public static List<IVector> FindNullSpace(IMatrix A)
         {
             int n = A.ColCount;
-            List<IVector<Key, Val>> standardBasis = new List<IVector<Key, Val>>();
-            Val one = (dynamic)1;
+            List<IVector> standardBasis = new List<IVector>();
+            double one = 1;
             for (int i = 0; i < n; ++i)
             {
-                Key col = A.ColKeys[i];
-                IVector<Key, Val> e_i = new SparseVector<Key, Val>(n, A.DefaultValue);
+                int col = A.ColKeys[i];
+                IVector e_i = new SparseVector(n, A.DefaultValue);
                 e_i[col] = one;
                 standardBasis.Add(e_i);
             }
 
             // return the orthogonal basis for V, which is the null space of A, using orthogonal complement
-            List<IVector<Key, Val>> wlist = Orthogonalization<Key, Val>.Orthogonalize(A.NonEmptyRows, standardBasis);
+            List<IVector> wlist = Orthogonalization.Orthogonalize(A.NonEmptyRows, standardBasis);
 
-            return VectorUtils<Key, Val>.RemoveZeroVectors(wlist);
+            return VectorUtils.RemoveZeroVectors(wlist);
         }
 
         /// <summary>
@@ -70,23 +70,23 @@ namespace cs_matrix
         /// </summary>
         /// <param name="A"></param>
         /// <returns></returns>
-        public static List<IVector<int, Val>> FindNullSpace2(IMatrix<int, Val> A)
+        public static List<IVector> FindNullSpace2(IMatrix A)
         {
-            List<IVector<int, Val>> R = null;
+            List<IVector> R = null;
             int n = A.ColCount;
             int rowCount = A.RowCount;
 
             // column vectors of A
-            List<IVector<int, Val>> Acols = MatrixUtils<Key, Val>.GetColumnVectors(A);
+            List<IVector> Acols = MatrixUtils.GetColumnVectors(A);
 
-            List<IVector<int, Val>> vstarlist = Orthogonalization<Key, Val>.Orthogonalize(Acols, out R); 
+            List<IVector> vstarlist = Orthogonalization.Orthogonalize(Acols, out R); 
 
             // T is a matrix with columns given by vectors in R
             // T is an upper triangle
             // A = (matrix with columns vstarlist) * T
-            IMatrix<int, Val> T = MatrixUtils<Key, Val>.GetMatrix(R, A.DefaultValue);
+            IMatrix T = MatrixUtils.GetMatrix(R, A.DefaultValue);
 
-            IMatrix<int, Val> T_inverse = T.Transpose(); //T inverse is its transpose
+            IMatrix T_inverse = T.Transpose(); //T inverse is its transpose
 
             // let: A = (vstarlist * T)
             // then: A * T.inverse = (vstarlist * T) * T.inverse = vstarlist * (T * T.inverse) = vstarlist * I = vstarlist
@@ -98,8 +98,8 @@ namespace cs_matrix
             //
             // by conclusion 1 and 2
             // we have null(A) = Span({ T.inverse[i] | i is such that vstarlist[i] is zero vector})
-            List<IVector<int, Val>> result = new List<IVector<int, Val>>();
-            List<IVector<int, Val>> Ticols = MatrixUtils<Key, Val>.GetColumnVectors(T_inverse);
+            List<IVector> result = new List<IVector>();
+            List<IVector> Ticols = MatrixUtils.GetColumnVectors(T_inverse);
             for (int c = 0; c < vstarlist.Count; ++c)
             {
                 if (vstarlist[c].IsEmpty)
@@ -118,15 +118,15 @@ namespace cs_matrix
         /// {u_1, u_2, ..., u_r} is the spanning set of V
         /// </summary>
         /// <param name="spanning_set"></param>
-        public VectorSpace(IEnumerable<IVector<Key, Val>> spanning_set)
+        public VectorSpace(IEnumerable<IVector> spanning_set)
         {
-            List<IVector<Key, Val>> vlist = Orthogonalization<Key, Val>.Orthogonalize(spanning_set);
-            mOrthogonalBasis = VectorUtils<Key, Val>.RemoveZeroVectors(vlist);
-            mOrthoNormalBasis = VectorUtils<Key, Val>.Normalize(mOrthogonalBasis);
+            List<IVector> vlist = Orthogonalization.Orthogonalize(spanning_set);
+            mOrthogonalBasis = VectorUtils.RemoveZeroVectors(vlist);
+            mOrthoNormalBasis = VectorUtils.Normalize(mOrthogonalBasis);
         }
 
 
-        public List<IVector<Key, Val>> OrthogonalBasis
+        public List<IVector> OrthogonalBasis
         {
             get
             {
@@ -134,7 +134,7 @@ namespace cs_matrix
             }
         }
 
-        public List<IVector<Key, Val>> OrthoNormalBasis
+        public List<IVector> OrthoNormalBasis
         {
             get
             {
@@ -155,9 +155,9 @@ namespace cs_matrix
         /// </summary>
         /// <param name="b">A vector which may be outside the vector space</param>
         /// <returns>Return point in the vector space closest to b</returns>
-        public IVector<Key, Val> GetClosedPoint(IVector<Key, Val> b)
+        public IVector GetClosedPoint(IVector b)
         {
-            IVector<Key, Val> b_orth = b.ProjectOrthogonal(mOrthogonalBasis);
+            IVector b_orth = b.ProjectOrthogonal(mOrthogonalBasis);
             return b.Minus(b_orth);
         }
 

@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace cs_matrix
 {
-    public class QRSolver<Val>
+    public class QRSolver
     {
         /// <summary>
         /// Solve x for Ax = b, where A is a invertible matrix
@@ -19,17 +19,17 @@ namespace cs_matrix
         /// <param name="A">An m x n matrix with linearly independent columns, where m >= n</param>
         /// <param name="b">An m x 1 column vector </param>
         /// <returns>An n x 1 column vector, x, such that Ax = b when m = n and Ax ~ b when m > n </returns>
-        public static IVector<int, Val> Solve(IMatrix<int, Val> A, IVector<int, Val> b)
+        public static IVector Solve(IMatrix A, IVector b)
         {
             // Q is a m x m matrix, R is a m x n matrix
             // Q = [Q1 Q2] Q1 is a m x n matrix, Q2 is a m x (m-n) matrix
             // R = [R1; 0] R1 is a n x n upper triangular matrix matrix
             // A = Q * R = Q1 * R1
-            IMatrix<int, Val> Q, R;
-            QR<Val>.Factorize(A, out Q, out R);
-            IVector<int, Val> c = Q.Transpose().Multiply(b);
+            IMatrix Q, R;
+            QR.Factorize(A, out Q, out R);
+            IVector c = Q.Transpose().Multiply(b);
 
-            IVector<int, Val> x = BackwardSubstitution<Val>.Solve(R, c);
+            IVector x = BackwardSubstitution.Solve(R, c);
             return x;
         }
 
@@ -49,19 +49,19 @@ namespace cs_matrix
         /// <param name="A"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static IVector<int, Val> SolveLeastSquare(IMatrix<int, Val> A, IVector<int, Val> b)
+        public static IVector SolveLeastSquare(IMatrix A, IVector b)
         {
-            IMatrix<int, Val> At = A.Transpose();
-            IMatrix<int, Val> C = At.Multiply(A); //C is a n x n matrix
+            IMatrix At = A.Transpose();
+            IMatrix C = At.Multiply(A); //C is a n x n matrix
             
-            IMatrix<int, Val> Q, R;
-            QR<Val>.Factorize(C, out Q, out R);
+            IMatrix Q, R;
+            QR.Factorize(C, out Q, out R);
 
-            IMatrix<int, Val> Qt = Q.Transpose();
+            IMatrix Qt = Q.Transpose();
 
-            IVector<int, Val> d = Qt.Multiply(At).Multiply(b);
+            IVector d = Qt.Multiply(At).Multiply(b);
 
-            IVector<int, Val> x = BackwardSubstitution<Val>.Solve(R, d);
+            IVector x = BackwardSubstitution.Solve(R, d);
 
             return x;
         }
@@ -82,31 +82,31 @@ namespace cs_matrix
         /// <param name="A"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static IVector<int, Val> SolveLeastNorm(IMatrix<int, Val> A, IVector<int, Val> b)
+        public static IVector SolveLeastNorm(IMatrix A, IVector b)
         {
-            IMatrix<int, Val> At = A.Transpose();
-            IMatrix<int, Val> C = A.Multiply(At);
-            IVector<int, Val> z = Solve(C, b);
-            IVector<int, Val> x_bar = At.Multiply(z);
+            IMatrix At = A.Transpose();
+            IMatrix C = A.Multiply(At);
+            IVector z = Solve(C, b);
+            IVector x_bar = At.Multiply(z);
             return x_bar;
         }
 
-        public static IMatrix<int, Val> Invert(IMatrix<int, Val> A)
+        public static IMatrix Invert(IMatrix A)
         {
             Debug.Assert(A.RowCount == A.ColCount);
             int n = A.RowCount;
 
-            Val one = (dynamic)1;
-            List<IVector<int, Val>> AinvCols = new List<IVector<int, Val>>();
+            double one = 1;
+            List<IVector> AinvCols = new List<IVector>();
             for (int i = 0; i < n; ++i)
             {
-                IVector<int, Val> e_i = new SparseVector<int, Val>(n, A.DefaultValue);
+                IVector e_i = new SparseVector(n, A.DefaultValue);
                 e_i[i] = one;
-                IVector<int, Val> AinvCol = Solve(A, e_i);
+                IVector AinvCol = Solve(A, e_i);
                 AinvCols.Add(AinvCol);
             }
 
-            IMatrix<int, Val> Ainv = MatrixUtils<int, Val>.GetMatrix(AinvCols);
+            IMatrix Ainv = MatrixUtils.GetMatrix(AinvCols);
 
             return Ainv;
         }
