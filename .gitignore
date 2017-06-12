@@ -2,15 +2,16 @@ obj/
 bin/
 **/obj/
 **/bin/
+packages/
 .idea/
 *.iml
-
-*.class
+build/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
 # Package Files #
+*.jar
 *.war
 *.ear
 
