@@ -27,3 +27,18 @@ The code below shows how to create a sparse matrix with 3 rows and 3 columns and
 SparseMatrix A = new SparseMatrix(3, 3);
 A[1, 1]  = 1
 ```
+
+The code below shows how to SVD decomposition
+
+```cs
+
+double[][] Data = new double[][]{
+        new double[] { 12, -51, 4},
+        new double[] { 6, 167, -68},
+        new double[] { -4, 24, -41}
+    };
+SparseMatrix A = new SparseMatrix(Data);
+IMatrix Sigma, U, Vstar;
+SVD.Factorize(A, out U, out Sigma, out Vstar);
+```
+
