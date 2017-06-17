@@ -82,3 +82,14 @@ SparseMatrix A = new SparseMatrix(Data);
 IMatrix Ainv = QRSolver.Invert(A);
 ```
 
+The code below shows how to do symmetric matrix inversion using eigen vector decomposition:
+
+```cs
+double[][] Data = new double[][]{
+        new double[] { 12, -51, 4},
+        new double[] { 6, 167, -68},
+        new double[] { -4, 24, -41}
+    };
+SparseMatrix A = new SparseMatrix(Data);
+IMatrix Ainv = QRAlgorithm.InvertSymmetricMatrix(A);
+```
